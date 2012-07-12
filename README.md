@@ -1,4 +1,4 @@
 Classifier
 ==========
 
-<h2>Automated Document Classificatier using Complementary NaiveBayes Algorithm.</h2>
+<h4>Automated Document Classificatier using Complementary NaiveBayes Algorithm.</h4>
