@@ -1,7 +1,7 @@
 Classifier
 ==========
 
-<h4>Automated Document Classificatier using Complementary NaiveBayes Algorithm.</h4>
+<h4>Automated Document Classifier using Complementary NaiveBayes Algorithm.</h4>
 
 <b>Trainer.java</b>
      Takes unprocessed data set and produces processed dataset as suitable for Mahout file format. Responsible for training Complementary Naive bayes algorithm and build a statistical model. 
