@@ -5,8 +5,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.Scanner;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.TokenStream;
@@ -27,15 +30,13 @@ import org.apache.mahout.classifier.bayes.InvalidDatastoreException;
  * 
  */
 public class classifier {
-	/**
-	 * @param
-	 * @retrun params
-	 */
+
 	private static Properties props = new Properties();
 	private static BayesParameters params = new BayesParameters();
+	public static Scanner in = new Scanner(System.in);
 
 	public static ClassifierContext setParams(File strModelPath) {
-		params.setGramSize(3);
+		params.setGramSize(2);
 		params.set("dataSource", "hdfs");
 		params.set("defaultCat", "unknown");
 		params.set("encoding", "UTF-8");
@@ -78,8 +79,10 @@ public class classifier {
 					i = i + 1;
 					System.out.println(i);
 				}
-				File file=new File(props.getProperty("OpDirPath")+classifier_result.getLabel()+"/"+s.getName());
-				FileUtils.writeStringToFile(file, FileUtils.readFileToString(s));
+				File file = new File(props.getProperty("OpDirPath")
+						+ classifier_result.getLabel() + "/" + s.getName());
+				FileUtils
+						.writeStringToFile(file, FileUtils.readFileToString(s));
 				System.out.println(s.getName() + " Category: "
 						+ classifier_result.getLabel() + " Score: "
 						+ classifier_result.getScore());
@@ -92,7 +95,39 @@ public class classifier {
 			}
 		}
 	}
-	public static String[] preprocessDocument(File fnDocument) throws IOException {
+
+	public static void testSingleInstance(String modelPath) {
+		try {
+			File model = new File(modelPath);
+			ClassifierContext classifier = setParams(model);
+			ClassifierResult classifier_result;
+			System.out.println("Enter a review sentence ");
+			String s = in.nextLine();
+
+			StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_31);
+			StringReader sr = new StringReader(s);
+			TokenStream tokensteam = analyzer.tokenStream(null, sr);
+			ArrayList<String> tokenlist = new ArrayList<String>();
+			while (tokensteam.incrementToken()) {
+				tokenlist.add(tokensteam.getAttribute(CharTermAttribute.class)
+						.toString());
+			}
+			
+			String[] doc = tokenlist.toArray(new String[tokenlist.size()]);
+			classifier_result = classifier.classifyDocument(doc, "unknown");
+            System.out.println(classifier_result.getLabel());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidDatastoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	public static String[] preprocessDocument(File fnDocument)
+			throws IOException {
 		StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_31);
 		TokenStream tokensteam = analyzer
 				.tokenStream(null, new InputStreamReader(new FileInputStream(
@@ -112,6 +147,7 @@ public class classifier {
 		InputStream inputStream = new FileInputStream(fileName);
 		props.load(inputStream);
 	}
+
 	/**
 	 * @param args
 	 * @throws Exception
@@ -122,6 +158,8 @@ public class classifier {
 		String inputDir = props.getProperty("IpDirPath"); // "/home/developer/dataset_rev/freshrevs/test/pos");
 		System.out.println(model_path + " " + inputDir);
 		// "/home/developer/dataset_rev/freshrevs/test/neg/";
-		testClassifier(model_path, inputDir);
+		//testClassifier(model_path, inputDir);
+		testSingleInstance(model_path);
+		
 	}
 }
